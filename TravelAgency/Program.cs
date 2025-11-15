@@ -1,5 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
-
+var connectionString = "Server=(localdb)\\mssqllocaldb;Database=TravelAgent;Trusted_Connection=True;";
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

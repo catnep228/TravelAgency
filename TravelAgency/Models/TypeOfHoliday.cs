@@ -2,7 +2,10 @@
 {
     public class TypeOfHoliday
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
+        public TypeActivity TypeOfACt { get; set; }
+
+        public List<Trip> Trips { get; set; } = [];
     }
 }
