@@ -11,7 +11,7 @@ namespace TravelAgency.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(u  => u.Id);
-            builder.HasOne(u => u.passanger).WithOne(p => p.user);
+            builder.HasOne(u => u.passanger).WithOne(p => p.user).HasForeignKey<User>(u => u.passangerId);
             builder.HasOne(u => u.role).WithMany(r => r.Users).HasForeignKey(u => u.roleId);
         }
     }

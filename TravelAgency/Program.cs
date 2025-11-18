@@ -1,10 +1,12 @@
+using TravelAgency.Data;
+
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = "Server=(localdb)\\mssqllocaldb;Database=TravelAgent;Trusted_Connection=True;";
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+builder.Services.AddDbContext<DataContext>();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

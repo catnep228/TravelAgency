@@ -2,7 +2,7 @@
 {
     public class Order
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
         public DateTime date {  get; set; }
 
         public List<Passanger> Passangers { get; set; } = [];
@@ -11,7 +11,7 @@
 
         public List<Service> AdditionalServices { get; set; } = [];
 
-        public Guid tripId { get; set; }
+        public long tripId { get; set; }
         public Trip trip { get; set; }
 
     }

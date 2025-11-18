@@ -5,7 +5,7 @@ namespace TravelAgency.Models
 {
     public class Trip
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
         public string Title { get; set; }
         public string Country { get; set; }
         public string City { get; set; }
@@ -13,7 +13,7 @@ namespace TravelAgency.Models
         public string HotelAddress  { get; set; }
 
 
-        public Guid typeofHoldayId { get; set; }
+        public long typeofHoldayId { get; set; }
         public TypeOfHoliday typeOfHoliday { get; set; }
 
 
@@ -25,6 +25,7 @@ namespace TravelAgency.Models
         public DateTime date { get; set; }
         public float Price { get; set; }
         public StatusTrip status { get; set; }
+        public long Quantity { get; set; }
 
         public List<Order> Orders { get; set; }
 
