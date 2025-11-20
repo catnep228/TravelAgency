@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TravelAgency.Migrations
 {
     /// <inheritdoc />
-    public partial class ASDF : Migration
+    public partial class Traver : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -12,8 +12,8 @@ using TravelAgency.Data;
 namespace TravelAgency.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251118221339_ASDF")]
-    partial class ASDF
+    [Migration("20251120233621_Traver")]
+    partial class Traver
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
