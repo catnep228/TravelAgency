@@ -6,6 +6,6 @@
         public string Name { get; set; }
         public TypeActivity TypeOfACt { get; set; }
 
-        public List<Trip> Trips { get; set; } = [];
+        public List<Trip>? Trips { get; set; } = [];
     }
 }

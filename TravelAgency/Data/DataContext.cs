@@ -10,7 +10,8 @@ namespace TravelAgency.Data
     {
         private readonly MySqlServerVersion _mySqlServerVersion;
         private readonly IConfiguration _configuration;
-        public DataContext(IConfiguration configuration)
+        public DataContext(DbContextOptions<DataContext> options, IConfiguration configuration)
+        : base(options)
         {
             _configuration = configuration;
             _mySqlServerVersion = new MySqlServerVersion(new Version(8, 0));
@@ -22,15 +23,12 @@ namespace TravelAgency.Data
         public DbSet<Service> Services { get; set; }
         public DbSet<Trip> Trips { get; set; }
         public DbSet<TypeOfHoliday> TypeOfHolidays { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        { 
-            optionsBuilder.UseMySql(_configuration.GetConnectionString("DefaultConnection"), _mySqlServerVersion); 
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
         }
+
 
     }
 }

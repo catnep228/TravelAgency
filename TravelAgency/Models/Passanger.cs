@@ -12,8 +12,8 @@
         public string Policy { get; set; }
         public List<Order> Orders { get; set; } = [];
 
-        public long userId { get; set; }
-        public User user { get; set; }
+        public long? userId { get; set; }
+        public User? user { get; set; }
 
     }
 }

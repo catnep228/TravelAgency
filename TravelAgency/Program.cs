@@ -1,12 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TravelAgency.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    var _mySqlServerVersion = new MySqlServerVersion(new Version(8, 0));
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), _mySqlServerVersion);
+});
 var app = builder.Build();
 
-builder.Services.AddDbContext<DataContext>();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -26,6 +32,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

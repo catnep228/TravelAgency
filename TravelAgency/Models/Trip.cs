@@ -18,7 +18,7 @@ namespace TravelAgency.Models
 
 
         public List<Service> Services { get; set; } = [];
-        public List<Service> AdditionalServices { get; set; } = [];
+        public List<Service>? AdditionalServices { get; set; } = [];
         public int NumberOfNights { get; set; }
 
 
@@ -27,7 +27,7 @@ namespace TravelAgency.Models
         public StatusTrip status { get; set; }
         public long Quantity { get; set; }
 
-        public List<Order> Orders { get; set; }
+        public List<Order>? Orders { get; set; }
 
     }
 }

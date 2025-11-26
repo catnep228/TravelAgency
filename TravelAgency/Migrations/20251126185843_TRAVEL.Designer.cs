@@ -12,8 +12,8 @@ using TravelAgency.Data;
 namespace TravelAgency.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251120233621_Traver")]
-    partial class Traver
+    [Migration("20251126185843_TRAVEL")]
+    partial class TRAVEL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,7 +144,7 @@ namespace TravelAgency.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("userId")
+                    b.Property<long?>("userId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -406,8 +406,7 @@ namespace TravelAgency.Migrations
 
             modelBuilder.Entity("TravelAgency.Models.Passanger", b =>
                 {
-                    b.Navigation("user")
-                        .IsRequired();
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("TravelAgency.Models.Role", b =>

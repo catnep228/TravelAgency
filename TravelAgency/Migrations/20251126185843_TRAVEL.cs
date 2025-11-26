@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TravelAgency.Migrations
 {
     /// <inheritdoc />
-    public partial class Traver : Migration
+    public partial class TRAVEL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,7 +34,7 @@ namespace TravelAgency.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Policy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    userId = table.Column<long>(type: "bigint", nullable: false)
+                    userId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
