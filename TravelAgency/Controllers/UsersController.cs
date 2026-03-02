@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using TravelAgency.Data;
 using TravelAgency.Models;
 
+
 namespace TravelAgency.Controllers
 {
+ 
     public class UsersController : Controller
     {
         private readonly DataContext _context;
@@ -18,15 +17,127 @@ namespace TravelAgency.Controllers
         {
             _context = context;
         }
-
-        // GET: Users
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create()
         {
-            var dataContext = _context.Users.Include(u => u.passanger).Include(u => u.role);
-            return View(await dataContext.ToListAsync());
+            ViewBag.roleId = new SelectList(await _context.Roles.ToListAsync(), "Id", "Name");
+            return View();
         }
 
-        // GET: Users/Details/5
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(User user)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.roleId = new SelectList(await _context.Roles.ToListAsync(), "Id", "Name", user.RoleId);
+                return View(user);
+            }
+
+            if (user.Passanger != null)
+            {
+                _context.Passangers.Add(user.Passanger);
+                await _context.SaveChangesAsync();
+
+                user.PassangerId = user.Passanger.Id;
+            }
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Index()
+        {
+            var users = await _context.Users
+                .Include(u => u.Passanger)
+                .Include(u => u.Role)
+                .ToListAsync();
+            return View(users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(long id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Passanger)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null) return NotFound();
+
+
+            ViewData["RoleList"] = new SelectList(_context.Roles, "Id", "Name", user.RoleId);
+            return View(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(long id, User updatedUser)
+        {
+            if (id != updatedUser.Id) return BadRequest();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["RoleList"] = new SelectList(_context.Roles, "Id", "Name", updatedUser.RoleId);
+                return View(updatedUser);
+            }
+
+
+            var user = await _context.Users
+                .Include(u => u.Passanger)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null) return NotFound();
+
+
+            user.Email = updatedUser.Email;
+            user.PhoneNumber = updatedUser.PhoneNumber;
+            user.RoleId = updatedUser.RoleId;
+
+            if (!string.IsNullOrWhiteSpace(updatedUser.Password))
+            {
+                user.Password = updatedUser.Password;
+            }
+
+
+            if (user.Passanger != null && updatedUser.Passanger != null)
+            {
+                user.Passanger.FirstName = updatedUser.Passanger.FirstName;
+                user.Passanger.LastName = updatedUser.Passanger.LastName;
+                user.Passanger.MiddleName = updatedUser.Passanger.MiddleName;
+                user.Passanger.Passport = updatedUser.Passanger.Passport;
+                user.Passanger.InternationalPassport = updatedUser.Passanger.InternationalPassport;
+                user.Passanger.Policy = updatedUser.Passanger.Policy;
+                user.Passanger.BirthCertificate = updatedUser.Passanger.BirthCertificate;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", "Ошибка при сохранении: " + ex.Message);
+                ViewData["RoleList"] = new SelectList(_context.Roles, "Id", "Name", updatedUser.RoleId);
+                return View(updatedUser);
+            }
+        }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Passanger)
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null) return NotFound();
+            return View(user);
+        }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -34,10 +145,12 @@ namespace TravelAgency.Controllers
                 return NotFound();
             }
 
+  
             var user = await _context.Users
-                .Include(u => u.passanger)
-                .Include(u => u.role)
+                .Include(u => u.Role)
+                .Include(u => u.Passanger)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (user == null)
             {
                 return NotFound();
@@ -45,127 +158,24 @@ namespace TravelAgency.Controllers
 
             return View(user);
         }
-
-        // GET: Users/Create
-        public IActionResult Create()
-        {
-            ViewData["passangerId"] = new SelectList(_context.Passangers, "Id", "Id");
-            ViewData["roleId"] = new SelectList(_context.Roles, "Id", "Id");
-            return View();
-        }
-
-        // POST: Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Email,Password,PhoneNumber")] User user, Passanger passanger)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(passanger);
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["passangerId"] = new SelectList(_context.Passangers, "Id", "Id", user.passangerId);
-            ViewData["roleId"] = new SelectList(_context.Roles, "Id", "Id", user.roleId);
-            return View(user);
-        }
-
-        // GET: Users/Edit/5
-        public async Task<IActionResult> Edit(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            ViewData["passangerId"] = new SelectList(_context.Passangers, "Id", "Id", user.passangerId);
-            ViewData["roleId"] = new SelectList(_context.Roles, "Id", "Id", user.roleId);
-            return View(user);
-        }
-
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Email,Password,PhoneNumber,passangerId,roleId")] User user)
-        {
-            if (id != user.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["passangerId"] = new SelectList(_context.Passangers, "Id", "Id", user.passangerId);
-            ViewData["roleId"] = new SelectList(_context.Roles, "Id", "Id", user.roleId);
-            return View(user);
-        }
-
-        // GET: Users/Delete/5
-        public async Task<IActionResult> Delete(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .Include(u => u.passanger)
-                .Include(u => u.role)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
-        // POST: Users/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-            }
+            var user = await _context.Users
+                .Include(u => u.Passanger)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
+            if (user == null) return NotFound();
+
+            if (user.Passanger != null)
+                _context.Passangers.Remove(user.Passanger);
+
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool UserExists(long id)
-        {
-            return _context.Users.Any(e => e.Id == id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

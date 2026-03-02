@@ -1,36 +1,34 @@
 ﻿@model TravelAgency.Models.Order
 
-@{
-    ViewData["Title"] = "Details";
-}
+<h1>Order Details</h1>
 
-<h1>Details</h1>
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Order #@Model.Id</h5>
+        <p class="card-text"><strong>Date:</strong> @Model.Date.ToLongDateString()</p>
+        <p class="card-text"><strong>Trip:</strong> @Model.Trip?.Title (@Model.Trip?.City)</p>
+        <p class="card-text"><strong>Status:</strong> @Model.Status</p>
+    </div>
+</div>
 
-<div>
-    <h4>Order</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.date)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.date)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.trip)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.trip.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+<h3>Passengers</h3>
+<ul class="list-group mb-3">
+    @foreach (var p in Model.Passangers)
+    {
+        <li class="list-group-item">@p.LastName @p.FirstName (@p.Passport)</li>
+    }
+</ul>
+
+<h3>Services</h3>
+<ul class="list-group mb-3">
+    @foreach (var s in Model.AdditionalServices)
+    {
+        <li class="list-group-item d-flex justify-content-between">
+            <span>@s.Name</span>
+            <span>@s.Price.ToString("N2") ₽</span>
+        </li>
+    }
+</ul>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to Main Page</a>

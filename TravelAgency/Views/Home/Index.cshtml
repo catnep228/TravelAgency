@@ -1,8 +1,48 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<TravelAgency.Models.Trip>
+
+@{
+    ViewData["Title"] = "Active Trips";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-5">
+    <h1 class="display-4">Welcome to Our Travel Agency</h1>
+    <p class="lead">Check out our currently active hot tours!</p>
+</div>
+
+<div class="container">
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var trip in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@trip.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@trip.Country, @trip.City</h6>
+                            <hr />
+                            <p class="card-text">
+                                <strong>Date:</strong> @trip.date.ToShortDateString()<br />
+                                <strong>Nights:</strong> @trip.NumberOfNights<br />
+                                <strong>Hotel:</strong> @trip.HotelName
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="h5 mb-0 text-success">@trip.Price.ToString("N0") ₽</span>
+                                <a asp-controller="Orders" asp-action="AddOrder" asp-route-tripId="@trip.Id" class="btn btn-primary">Book Now</a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <small class="text-muted">Available: @trip.Quantity spots</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <div class="alert alert-info">No active trips available at the moment.</div>
+            </div>
+        }
+    </div>
 </div>

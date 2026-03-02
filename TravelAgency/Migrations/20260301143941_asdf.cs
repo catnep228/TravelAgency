@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TravelAgency.Migrations
 {
     /// <inheritdoc />
-    public partial class TRAVEL : Migration
+    public partial class asdf : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,20 +21,19 @@ namespace TravelAgency.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    FirstName = table.Column<string>(type: "longtext", nullable: false)
+                    FirstName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LastName = table.Column<string>(type: "longtext", nullable: false)
+                    LastName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MiddleName = table.Column<string>(type: "longtext", nullable: false)
+                    MiddleName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     BirthCertificate = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    Passport = table.Column<string>(type: "longtext", nullable: false)
+                    Passport = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    InternationalPassport = table.Column<string>(type: "longtext", nullable: false)
+                    InternationalPassport = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Policy = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    userId = table.Column<long>(type: "bigint", nullable: true)
+                    Policy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -68,7 +67,8 @@ namespace TravelAgency.Migrations
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     TypeService = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Price = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,24 +104,22 @@ namespace TravelAgency.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    passangerId = table.Column<long>(type: "bigint", nullable: false),
-                    roleId = table.Column<long>(type: "bigint", nullable: false)
+                    PassangerId = table.Column<long>(type: "bigint", nullable: true),
+                    RoleId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_Passangers_passangerId",
-                        column: x => x.passangerId,
+                        name: "FK_Users_Passangers_PassangerId",
+                        column: x => x.PassangerId,
                         principalTable: "Passangers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Users_Roles_roleId",
-                        column: x => x.roleId,
+                        name: "FK_Users_Roles_RoleId",
+                        column: x => x.RoleId,
                         principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -166,16 +164,16 @@ namespace TravelAgency.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    status = table.Column<int>(type: "int", nullable: false),
-                    tripId = table.Column<long>(type: "bigint", nullable: false)
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    TripId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Orders_Trips_tripId",
-                        column: x => x.tripId,
+                        name: "FK_Orders_Trips_TripId",
+                        column: x => x.TripId,
                         principalTable: "Trips",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -288,9 +286,9 @@ namespace TravelAgency.Migrations
                 column: "PassangersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_tripId",
+                name: "IX_Orders_TripId",
                 table: "Orders",
-                column: "tripId");
+                column: "TripId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderService_OrdersId",
@@ -313,15 +311,15 @@ namespace TravelAgency.Migrations
                 column: "typeofHoldayId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_passangerId",
+                name: "IX_Users_PassangerId",
                 table: "Users",
-                column: "passangerId",
+                column: "PassangerId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_roleId",
+                name: "IX_Users_RoleId",
                 table: "Users",
-                column: "roleId");
+                column: "RoleId");
         }
 
         /// <inheritdoc />

@@ -22,6 +22,30 @@ namespace TravelAgency.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TripId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripId");
+
+                    b.ToTable("Orders");
+                });
+
             modelBuilder.Entity("OrderPassanger", b =>
                 {
                     b.Property<long>("OrdersId")
@@ -82,30 +106,6 @@ namespace TravelAgency.Migrations
                     b.ToTable("ServiceTrip1");
                 });
 
-            modelBuilder.Entity("TravelAgency.Models.Order", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
-
-                    b.Property<long>("tripId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("tripId");
-
-                    b.ToTable("Orders");
-                });
-
             modelBuilder.Entity("TravelAgency.Models.Passanger", b =>
                 {
                     b.Property<long>("Id")
@@ -118,31 +118,22 @@ namespace TravelAgency.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("InternationalPassport")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("MiddleName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Passport")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Policy")
-                        .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<long?>("userId")
-                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -181,6 +172,9 @@ namespace TravelAgency.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<long>("Price")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("TypeService")
                         .IsRequired()
@@ -276,6 +270,9 @@ namespace TravelAgency.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<long?>("PassangerId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -284,25 +281,33 @@ namespace TravelAgency.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("passangerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("roleId")
+                    b.Property<long?>("RoleId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("passangerId")
+                    b.HasIndex("PassangerId")
                         .IsUnique();
 
-                    b.HasIndex("roleId");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.HasOne("TravelAgency.Models.Trip", "Trip")
+                        .WithMany("Orders")
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Trip");
+                });
+
             modelBuilder.Entity("OrderPassanger", b =>
                 {
-                    b.HasOne("TravelAgency.Models.Order", null)
+                    b.HasOne("Order", null)
                         .WithMany()
                         .HasForeignKey("OrdersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -323,7 +328,7 @@ namespace TravelAgency.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TravelAgency.Models.Order", null)
+                    b.HasOne("Order", null)
                         .WithMany()
                         .HasForeignKey("OrdersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -360,17 +365,6 @@ namespace TravelAgency.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TravelAgency.Models.Order", b =>
-                {
-                    b.HasOne("TravelAgency.Models.Trip", "trip")
-                        .WithMany("Orders")
-                        .HasForeignKey("tripId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("trip");
-                });
-
             modelBuilder.Entity("TravelAgency.Models.Trip", b =>
                 {
                     b.HasOne("TravelAgency.Models.TypeOfHoliday", "typeOfHoliday")
@@ -384,21 +378,17 @@ namespace TravelAgency.Migrations
 
             modelBuilder.Entity("TravelAgency.Models.User", b =>
                 {
-                    b.HasOne("TravelAgency.Models.Passanger", "passanger")
+                    b.HasOne("TravelAgency.Models.Passanger", "Passanger")
                         .WithOne("user")
-                        .HasForeignKey("TravelAgency.Models.User", "passangerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TravelAgency.Models.User", "PassangerId");
 
-                    b.HasOne("TravelAgency.Models.Role", "role")
+                    b.HasOne("TravelAgency.Models.Role", "Role")
                         .WithMany("Users")
-                        .HasForeignKey("roleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleId");
 
-                    b.Navigation("passanger");
+                    b.Navigation("Passanger");
 
-                    b.Navigation("role");
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("TravelAgency.Models.Passanger", b =>

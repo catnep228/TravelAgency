@@ -1,32 +1,26 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TravelAgency.Data; 
 using TravelAgency.Models;
-
-namespace TravelAgency.Controllers
+[Authorize]
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly DataContext _context;
+
+    public HomeController(DataContext context)
     {
-        private readonly ILogger<HomeController> _logger;
+        _context = context;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+    public async Task<IActionResult> Index()
+    {
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        var activeTrips = await _context.Trips
+            .Where(t => t.status == StatusTrip.Active)
+            .OrderBy(t => t.date)
+            .ToListAsync();
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        return View(activeTrips);
     }
 }

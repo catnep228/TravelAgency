@@ -1,0 +1,22 @@
+﻿@model TravelAgency.Models.TypeOfHoliday
+
+<h1>Create Type Of Holiday</h1>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Type Activity</label>
+        <select asp-for="TypeOfACt" class="form-control">
+            @foreach (var type in Enum.GetValues(typeof(TravelAgency.Models.TypeActivity)))
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

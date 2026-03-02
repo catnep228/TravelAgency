@@ -1,0 +1,62 @@
+﻿@model IEnumerable<TravelAgency.Models.Order>
+
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Bookings</h1>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">Book New Trip</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 border rounded bg-light">
+        <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
+        <p class="mt-3">You haven't booked any trips yet.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Explore Destinations</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var order in Model)
+        {
+            <div class="col-12 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center border-end">
+                                <h5 class="mb-0">@order.Date.ToString("dd MMM")</h5>
+                                <small class="text-muted">@order.Date.Year</small>
+                            </div>
+                            <div class="col-md-4 mt-2 mt-md-0">
+                                <h5 class="card-title mb-1">@order.Trip?.Title</h5>
+                                <p class="card-text text-muted small">
+                                    <i class="bi bi-pin-map"></i> @order.Trip?.Country, @order.Trip?.City
+                                </p>
+                            </div>
+                            <div class="col-md-3 text-md-center">
+                                <span class="badge @(order.Status.ToString() == "Confirmed" ? "bg-success" : "bg-warning text-dark")">
+                                    @order.Status
+                                </span>
+                                <div class="mt-1 small text-muted">
+                                    @order.Passangers.Count Passenger(s)
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                <div class="h5 mb-2">
+                                    @{
+                                        var total = (order.Trip?.Price ?? 0) + (order.AdditionalServices?.Sum(s => s.Price) ?? 0);
+                                    }
+                                    @total.ToString("N0") ₽
+                                </div>
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-primary w-100">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

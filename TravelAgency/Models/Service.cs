@@ -7,6 +7,7 @@
         public string TypeService { get; set; }
         public List<Order>? Orders { get; set; } = [];
         public List<Trip>? Trips { get; set; } = [];
+        public long Price { get; set; }
         public List<Trip>? TripsAdditional { get; set; } = [];
 
     }

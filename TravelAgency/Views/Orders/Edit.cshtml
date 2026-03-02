@@ -1,44 +1,91 @@
 ﻿@model TravelAgency.Models.Order
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<h1>Edit Order #@Model.Id</h1>
 
-<h1>Edit</h1>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
 
-<h4>Order</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="date" class="control-label"></label>
-                <input asp-for="date" class="form-control" />
-                <span asp-validation-for="date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="status" class="control-label"></label>
-                <select asp-for="status" class="form-control"></select>
-                <span asp-validation-for="status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="tripId" class="control-label"></label>
-                <select asp-for="tripId" class="form-control" asp-items="ViewBag.tripId"></select>
-                <span asp-validation-for="tripId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label">Order Date</label>
+        <input asp-for="Date" type="date" class="form-control" value="@Model.Date.ToString("yyyy-MM-dd")" required />
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="mb-3">
+        <label asp-for="TripId" class="form-label">Trip</label>
+        <select asp-for="TripId" class="form-select" asp-items="@(new SelectList(ViewBag.Trips, "Id", "Title"))" required></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label">Status</label>
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<TravelAgency.Models.StatusOrder>()"></select>
+    </div>
+
+    <hr />
+    <h4>Passengers</h4>
+    <div id="passengers-container">
+        @for (int i = 0; i < Model.Passangers.Count; i++)
+        {
+            <div class="passenger-block border p-3 mb-3 bg-light rounded">
+                <input type="hidden" name="Passangers[@i].Id" value="@Model.Passangers[i].Id" />
+                <div class="d-flex justify-content-between mb-2">
+                    <h6>Passenger #@(i + 1)</h6>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.passenger-block').remove()">Remove</button>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-4"><input name="Passangers[@i].LastName" class="form-control" value="@Model.Passangers[i].LastName" placeholder="Last Name" required /></div>
+                    <div class="col-md-4"><input name="Passangers[@i].FirstName" class="form-control" value="@Model.Passangers[i].FirstName" placeholder="First Name" required /></div>
+                    <div class="col-md-4"><input name="Passangers[@i].MiddleName" class="form-control" value="@Model.Passangers[i].MiddleName" placeholder="Middle Name" /></div>
+                    <div class="col-md-4"><input name="Passangers[@i].Passport" class="form-control" value="@Model.Passangers[i].Passport" placeholder="Passport (RU)" /></div>
+                    <div class="col-md-4"><input name="Passangers[@i].InternationalPassport" class="form-control" value="@Model.Passangers[i].InternationalPassport" placeholder="Int. Passport" /></div>
+                    <div class="col-md-4"><input name="Passangers[@i].Policy" class="form-control" value="@Model.Passangers[i].Policy" placeholder="Insurance Policy" /></div>
+                    <div class="col-12 mt-2">
+                        <div class="form-check">
+                            <!input name="Passangers[@i].BirthCertificate" type="checkbox" class="form-check-input" value="true" @(Model.Passangers[i].BirthCertificate ? "checked" : "") id="bc_@i" />
+                            <label class="form-check-label" for="bc_@i">Birth Certificate</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-outline-success mb-3" onclick="addPassenger()">+ Add New Passenger</button>
+
+    <hr />
+    <div class="mb-3">
+        <label class="form-label">Additional Services</label>
+        <select name="selectedServices" class="form-select" multiple size="5">
+            @foreach (var s in ViewBag.Services)
+            {
+                bool isSelected = Model.AdditionalServices?.Any(x => x.Id == s.Id) ?? false;
+                <!option value="@s.Id" @(isSelected ? "selected" : "")>@s.Name (@s.Price.ToString("N0") ₽)</!option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        let pIndex = @Model.Passangers.Count;
+        function addPassenger() {
+            const container = document.getElementById('passengers-container');
+            const html = `
+                <div class="passenger-block border p-3 mb-3 bg-white rounded shadow-sm">
+                    <h6>New Passenger</h6>
+                    <div class="row g-2">
+                        <div class="col-md-4"><input name="Passangers[${pIndex}].LastName" class="form-control" placeholder="Last Name" required /></div>
+                        <div class="col-md-4"><input name="Passangers[${pIndex}].FirstName" class="form-control" placeholder="First Name" required /></div>
+                        <div class="col-md-4"><input name="Passangers[${pIndex}].MiddleName" class="form-control" placeholder="Middle Name" /></div>
+                        <div class="col-md-4"><input name="Passangers[${pIndex}].Passport" class="form-control" placeholder="Passport" /></div>
+                        <div class="col-md-4"><input name="Passangers[${pIndex}].InternationalPassport" class="form-control" placeholder="Int. Passport" /></div>
+                        <div class="col-md-4"><input name="Passangers[${pIndex}].Policy" class="form-control" placeholder="Policy" /></div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="this.closest('.passenger-block').remove()">Remove</button>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            pIndex++;
+        }
+    </script>
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TravelAgency.Data;
 using TravelAgency.Models;
@@ -19,42 +15,46 @@ namespace TravelAgency.Controllers
             _context = context;
         }
 
-        // GET: Services
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Services.ToListAsync());
+  
+            var services = await _context.Services
+                .Include(s => s.Trips)
+                .Include(s => s.TripsAdditional)
+                .Include(s => s.Orders)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(services);
         }
 
-        // GET: Services/Details/5
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Details(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var service = await _context.Services
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (service == null)
-            {
-                return NotFound();
-            }
+                .Include(s => s.Trips)
+                .Include(s => s.TripsAdditional)
+                .Include(s => s.Orders)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (service == null) return NotFound();
 
             return View(service);
         }
 
-        // GET: Services/Create
+        [Authorize(Roles = "Admin,Moder")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Services/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin,Moder")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,TypeService")] Service service)
+        public async Task<IActionResult> Create([Bind("Id,Name,TypeService,Price")] Service service)
         {
             if (ModelState.IsValid)
             {
@@ -65,86 +65,82 @@ namespace TravelAgency.Controllers
             return View(service);
         }
 
-        // GET: Services/Edit/5
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Edit(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var service = await _context.Services.FindAsync(id);
-            if (service == null)
-            {
-                return NotFound();
-            }
+            if (service == null) return NotFound();
+
             return View(service);
         }
 
-        // POST: Services/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin,Moder")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,TypeService")] Service service)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,TypeService,Price")] Service updatedService)
         {
-            if (id != service.Id)
-            {
-                return NotFound();
-            }
+            if (id != updatedService.Id) return BadRequest();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(service);
+                   
+                    var serviceInDb = await _context.Services.FindAsync(id);
+                    if (serviceInDb == null) return NotFound();
+
+                    serviceInDb.Name = updatedService.Name;
+                    serviceInDb.TypeService = updatedService.TypeService;
+                    serviceInDb.Price = updatedService.Price;
+
+                    _context.Update(serviceInDb);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ServiceExists(service.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!ServiceExists(updatedService.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(service);
+            return View(updatedService);
         }
 
-        // GET: Services/Delete/5
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Delete(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var service = await _context.Services
+                .Include(s => s.Orders) 
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (service == null)
-            {
-                return NotFound();
-            }
+
+            if (service == null) return NotFound();
 
             return View(service);
         }
 
-        // POST: Services/Delete/5
+        [Authorize(Roles = "Admin,Moder")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var service = await _context.Services.FindAsync(id);
-            if (service != null)
+            var service = await _context.Services
+                .Include(s => s.Orders)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (service == null) return NotFound();
+
+
+            if (service.Orders != null && service.Orders.Any())
             {
-                _context.Services.Remove(service);
+                ModelState.AddModelError("", "Нельзя удалить услугу, так как она используется в заказах.");
+                return View(service);
             }
 
+            _context.Services.Remove(service);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

@@ -1,43 +1,90 @@
 ﻿@model TravelAgency.Models.User
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create User";
 }
 
-<h1>Create</h1>
+<h1>Create User</h1>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Create" method="post">
+
+   
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RoleId" class="form-label"></label>
+        <select asp-for="RoleId"
+                class="form-control"
+                asp-items="ViewBag.roleId">
+            <option value="">-- Select Role --</option>
+        </select>
+        <span asp-validation-for="RoleId" class="text-danger"></span>
+    </div>
+
+    <hr />
+    <h4>Passenger Info</h4>
+
+    
+
+    <div class="mb-3">
+        <label asp-for="Passanger.FirstName" class="form-label"></label>
+        <input asp-for="Passanger.FirstName" class="form-control" />
+        <span asp-validation-for="Passanger.FirstName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.LastName" class="form-label"></label>
+        <input asp-for="Passanger.LastName" class="form-control" />
+        <span asp-validation-for="Passanger.LastName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.MiddleName" class="form-label"></label>
+        <input asp-for="Passanger.MiddleName" class="form-control" />
+    </div>
+
+    <div class="mb-3 form-check">
+        <input asp-for="Passanger.BirthCertificate" class="form-check-input" />
+        <label asp-for="Passanger.BirthCertificate" class="form-check-label"></label>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.Passport" class="form-label"></label>
+        <input asp-for="Passanger.Passport" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.InternationalPassport" class="form-label"></label>
+        <input asp-for="Passanger.InternationalPassport" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.Policy" class="form-label"></label>
+        <input asp-for="Passanger.Policy" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }

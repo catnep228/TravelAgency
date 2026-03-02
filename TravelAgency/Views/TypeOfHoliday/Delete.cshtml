@@ -1,15 +1,13 @@
-﻿@model TravelAgency.Models.Service
+﻿@model TravelAgency.Models.TypeOfHoliday
 
-<h1>Delete Service</h1>
+<h1>Delete Type Of Holiday</h1>
 
-<p>Are you sure you want to delete this service?</p>
+<p>Are you sure you want to delete this Type Of Holiday?</p>
 
 <div>
     <p><strong>Name:</strong> @Model.Name</p>
-    <p><strong>Type Service:</strong> @Model.TypeService</p>
+    <p><strong>Type Activity:</strong> @Model.TypeOfACt</p>
     <p><strong>Trips Count:</strong> @Model.Trips?.Count() ?? 0</p>
-    <p><strong>Additional Trips Count:</strong> @Model.TripsAdditional?.Count() ?? 0</p>
-    <p><strong>Orders Count:</strong> @Model.Orders?.Count() ?? 0</p>
 </div>
 
 <form asp-action="Delete" method="post">

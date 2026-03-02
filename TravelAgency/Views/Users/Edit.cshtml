@@ -1,54 +1,77 @@
 ﻿@model TravelAgency.Models.User
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit User";
 }
 
-<h1>Edit</h1>
+<h1>Edit User</h1>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="passangerId" class="control-label"></label>
-                <select asp-for="passangerId" class="form-control" asp-items="ViewBag.passangerId"></select>
-                <span asp-validation-for="passangerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="roleId" class="control-label"></label>
-                <select asp-for="roleId" class="form-control" asp-items="ViewBag.roleId"></select>
-                <span asp-validation-for="roleId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Edit" method="post">
+
+    
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="PassangerId" />
+
+    
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password"
+               type="password"
+               class="form-control"
+               placeholder="Leave empty to keep current password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RoleId" class="form-label"></label>
+        <select asp-for="RoleId"
+                class="form-control"
+                asp-items="@(ViewData["RoleList"] as SelectList)">
+            <option value="">-- Select Role --</option>
+        </select>
+        <span asp-validation-for="RoleId" class="text-danger"></span>
+    </div>
+
+    <hr />
+    <h4>Passenger Info</h4>
+
+    <input type="hidden" asp-for="Passanger.Id" />
+
+    <div class="mb-3">
+        <label asp-for="Passanger.FirstName" class="form-label"></label>
+        <input asp-for="Passanger.FirstName" class="form-control" />
+        <span asp-validation-for="Passanger.FirstName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.LastName" class="form-label"></label>
+        <input asp-for="Passanger.LastName" class="form-control" />
+        <span asp-validation-for="Passanger.LastName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Passanger.MiddleName" class="form-label"></label>
+        <input asp-for="Passanger.MiddleName" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }

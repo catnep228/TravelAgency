@@ -1,157 +1,118 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TravelAgency.Data;
 using TravelAgency.Models;
 
-namespace TravelAgency.Controllers
+public class PassangersController : Controller
 {
-    public class PassangersController : Controller
+    private readonly DataContext _context;
+
+    public PassangersController(DataContext context)
     {
-        private readonly DataContext _context;
+        _context = context;
+    }
 
-        public PassangersController(DataContext context)
+    [Authorize(Roles = "Admin")]
+    public IActionResult Index()
+    {
+        var passangers = _context.Passangers
+            .Include(p => p.user)
+            .Include(p => p.Orders)
+            .ToList();
+
+        return View(passangers);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult Details(long id)
+    {
+        var passanger = _context.Passangers
+            .Include(p => p.user)
+            .Include(p => p.Orders)
+            .FirstOrDefault(p => p.Id == id);
+
+        if (passanger == null) return NotFound();
+
+        return View(passanger);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult Create()
+    {
+        ViewBag.Users = _context.Users.ToList(); 
+        return View();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Create(Passanger passanger)
+    {
+        if (!ModelState.IsValid)
         {
-            _context = context;
-        }
-
-        // GET: Passangers
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Passangers.ToListAsync());
-        }
-
-        // GET: Passangers/Details/5
-        public async Task<IActionResult> Details(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var passanger = await _context.Passangers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (passanger == null)
-            {
-                return NotFound();
-            }
-
+            ViewBag.Users = _context.Users.ToList();
             return View(passanger);
         }
 
-        // GET: Passangers/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        _context.Passangers.Add(passanger);
+        _context.SaveChanges();
 
-        // POST: Passangers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,MiddleName,BirthCertificate,Passport,InternationalPassport,Policy,userId")] Passanger passanger)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(passanger);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(passanger);
-        }
+        return RedirectToAction(nameof(Index));
+    }
 
-        // GET: Passangers/Edit/5
-        public async Task<IActionResult> Edit(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+    [Authorize(Roles = "Admin")]
+    public IActionResult Edit(long id)
+    {
+        var passanger = _context.Passangers.Find(id);
+        if (passanger == null) return NotFound();
 
-            var passanger = await _context.Passangers.FindAsync(id);
-            if (passanger == null)
-            {
-                return NotFound();
-            }
-            return View(passanger);
-        }
+        ViewBag.Users = _context.Users.ToList();
+        return View(passanger);
+    }
 
-        // POST: Passangers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,FirstName,LastName,MiddleName,BirthCertificate,Passport,InternationalPassport,Policy,userId")] Passanger passanger)
-        {
-            if (id != passanger.Id)
-            {
-                return NotFound();
-            }
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(long id, Passanger updatedPassanger)
+    {
+        if (id != updatedPassanger.Id) return BadRequest();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(passanger);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PassangerExists(passanger.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(passanger);
-        }
+        var passanger = _context.Passangers.Find(id);
+        if (passanger == null) return NotFound();
 
-        // GET: Passangers/Delete/5
-        public async Task<IActionResult> Delete(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        passanger.FirstName = updatedPassanger.FirstName;
+        passanger.LastName = updatedPassanger.LastName;
+        passanger.MiddleName = updatedPassanger.MiddleName;
+        passanger.BirthCertificate = updatedPassanger.BirthCertificate;
+        passanger.Passport = updatedPassanger.Passport;
+        passanger.InternationalPassport = updatedPassanger.InternationalPassport;
+        passanger.Policy = updatedPassanger.Policy;
 
-            var passanger = await _context.Passangers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (passanger == null)
-            {
-                return NotFound();
-            }
 
-            return View(passanger);
-        }
+        _context.SaveChanges();
+        return RedirectToAction(nameof(Index));
+    }
 
-        // POST: Passangers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
-        {
-            var passanger = await _context.Passangers.FindAsync(id);
-            if (passanger != null)
-            {
-                _context.Passangers.Remove(passanger);
-            }
+    [Authorize(Roles = "Admin")]
+    public IActionResult Delete(long id)
+    {
+        var passanger = _context.Passangers.Find(id);
+        if (passanger == null) return NotFound();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        return View(passanger);
+    }
 
-        private bool PassangerExists(long id)
-        {
-            return _context.Passangers.Any(e => e.Id == id);
-        }
+    [Authorize(Roles = "Admin")]
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public IActionResult DeleteConfirmed(long id)
+    {
+        var passanger = _context.Passangers.Find(id);
+        if (passanger == null) return NotFound();
+
+        _context.Passangers.Remove(passanger);
+        _context.SaveChanges();
+        return RedirectToAction(nameof(Index));
     }
 }

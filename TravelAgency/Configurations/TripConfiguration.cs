@@ -12,7 +12,7 @@ namespace TravelAgency.Configurations
             builder.HasMany(t => t.Services).WithMany(s => s.Trips);
             builder.HasMany(t => t.AdditionalServices).WithMany(s => s.TripsAdditional);
             builder.HasOne(t => t.typeOfHoliday).WithMany(th => th.Trips).HasForeignKey(t => t.typeofHoldayId);
-            builder.HasMany(t => t.Orders).WithOne(o => o.trip).HasForeignKey(o => o.tripId);
+            builder.HasMany(t => t.Orders).WithOne(o => o.Trip).HasForeignKey(o => o.TripId);
         }
     }
 }

@@ -1,30 +1,14 @@
 ﻿@model TravelAgency.Models.Service
 
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
+<h1>Service Details</h1>
 
 <div>
-    <h4>Service</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TypeService)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TypeService)
-        </dd>
-    </dl>
+    <p><strong>Name:</strong> @Model.Name</p>
+    <p><strong>Type Service:</strong> @Model.TypeService</p>
+    <p><strong>Trips Count:</strong> @Model.Trips?.Count() ?? 0</p>
+    <p><strong>Additional Trips Count:</strong> @Model.TripsAdditional?.Count() ?? 0</p>
+    <p><strong>Orders Count:</strong> @Model.Orders?.Count() ?? 0</p>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back</a>

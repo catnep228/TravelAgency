@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,139 +16,146 @@ namespace TravelAgency.Controllers
             _context = context;
         }
 
-        // GET: Trips
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Index()
         {
-            var dataContext = _context.Trips.Include(t => t.typeOfHoliday);
-            return View(await dataContext.ToListAsync());
+            var trips = await _context.Trips
+                .Include(t => t.typeOfHoliday)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(trips);
         }
 
-        // GET: Trips/Details/5
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Details(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var trip = await _context.Trips
                 .Include(t => t.typeOfHoliday)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (trip == null)
-            {
-                return NotFound();
-            }
+                .Include(t => t.Services)
+                .Include(t => t.AdditionalServices)
+                .Include(t => t.Orders)
+                .AsSplitQuery() 
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (trip == null) return NotFound();
 
             return View(trip);
         }
 
-        // GET: Trips/Create
-        public IActionResult Create()
+        [Authorize(Roles = "Admin,Moder")]
+        public async Task<IActionResult> Create()
         {
-            ViewData["typeofHoldayId"] = new SelectList(_context.TypeOfHolidays, "Id", "Id");
+            ViewBag.TypeOfHolidays = await _context.TypeOfHolidays.AsNoTracking().ToListAsync();
             return View();
         }
 
-        // POST: Trips/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin,Moder")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Country,City,HotelName,HotelAddress,typeofHoldayId,NumberOfNights,date,Price,status,Quantity")] Trip trip)
+        public async Task<IActionResult> Create(Trip trip)
         {
+    
+            ModelState.Remove("typeOfHoliday");
+            ModelState.Remove("Services");
+            ModelState.Remove("AdditionalServices");
+            ModelState.Remove("Orders");
+
             if (ModelState.IsValid)
             {
                 _context.Add(trip);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["typeofHoldayId"] = new SelectList(_context.TypeOfHolidays, "Id", "Id", trip.typeofHoldayId);
+
+            ViewBag.TypeOfHolidays = await _context.TypeOfHolidays.AsNoTracking().ToListAsync();
             return View(trip);
         }
 
-        // GET: Trips/Edit/5
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Edit(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var trip = await _context.Trips.FindAsync(id);
-            if (trip == null)
-            {
-                return NotFound();
-            }
-            ViewData["typeofHoldayId"] = new SelectList(_context.TypeOfHolidays, "Id", "Id", trip.typeofHoldayId);
+            if (trip == null) return NotFound();
+
+            ViewBag.TypeOfHolidays = await _context.TypeOfHolidays.AsNoTracking().ToListAsync();
             return View(trip);
         }
 
-        // POST: Trips/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin,Moder")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Title,Country,City,HotelName,HotelAddress,typeofHoldayId,NumberOfNights,date,Price,status,Quantity")] Trip trip)
+        public async Task<IActionResult> Edit(long id, Trip updatedTrip)
         {
-            if (id != trip.Id)
-            {
-                return NotFound();
-            }
+            if (id != updatedTrip.Id) return BadRequest();
+
+            ModelState.Remove("typeOfHoliday");
+            ModelState.Remove("Services");
+            ModelState.Remove("AdditionalServices");
+            ModelState.Remove("Orders");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(trip);
+                    var tripInDb = await _context.Trips.FindAsync(id);
+                    if (tripInDb == null) return NotFound();
+
+                    tripInDb.Title = updatedTrip.Title;
+                    tripInDb.Country = updatedTrip.Country;
+                    tripInDb.City = updatedTrip.City;
+                    tripInDb.HotelName = updatedTrip.HotelName;
+                    tripInDb.HotelAddress = updatedTrip.HotelAddress;
+                    tripInDb.typeofHoldayId = updatedTrip.typeofHoldayId;
+                    tripInDb.NumberOfNights = updatedTrip.NumberOfNights;
+                    tripInDb.Price = updatedTrip.Price;
+                    tripInDb.Quantity = updatedTrip.Quantity;
+                    tripInDb.date = updatedTrip.date;
+                    tripInDb.status = updatedTrip.status;
+
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TripExists(trip.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!TripExists(updatedTrip.Id)) return NotFound();
+                    else throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["typeofHoldayId"] = new SelectList(_context.TypeOfHolidays, "Id", "Id", trip.typeofHoldayId);
-            return View(trip);
+
+            ViewBag.TypeOfHolidays = await _context.TypeOfHolidays.AsNoTracking().ToListAsync();
+            return View(updatedTrip);
         }
 
-        // GET: Trips/Delete/5
+        [Authorize(Roles = "Admin,Moder")]
         public async Task<IActionResult> Delete(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var trip = await _context.Trips
                 .Include(t => t.typeOfHoliday)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (trip == null)
-            {
-                return NotFound();
-            }
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (trip == null) return NotFound();
 
             return View(trip);
         }
 
-        // POST: Trips/Delete/5
+        [Authorize(Roles = "Admin,Moder")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             var trip = await _context.Trips.FindAsync(id);
-            if (trip != null)
-            {
-                _context.Trips.Remove(trip);
-            }
+            if (trip == null) return NotFound();
 
+            _context.Trips.Remove(trip);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
