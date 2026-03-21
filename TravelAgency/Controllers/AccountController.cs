@@ -111,7 +111,7 @@ namespace TravelAgency.Controllers
 
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                ModelState.AddModelError("", "Неверный логин или пароль");
                 return View();
             }
 
